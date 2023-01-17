@@ -1,0 +1,3 @@
+cmasher==1.6.3
+numpy==1.23.5
+pygame==2.1.2
