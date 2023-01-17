@@ -1,9 +1,6 @@
-import time
-import random
-
 import pygame
-import cmasher as cmr
 
+import utils
 import config
 from physics import *
 from Vector2 import *
@@ -13,59 +10,44 @@ class App(object):
     def __init__(self):
         ### Sound
         pygame.mixer.init()
-        pygame.mixer.set_num_channels(20)
-        self.samples = []
-        self.filepath_list = [f"./samples/{n + 1:03}.wav" for n in range(67)]
-        for filepath in self.filepath_list:
+        pygame.mixer.set_num_channels(50)
+        self.notes_samples = []
+        self.notes_filepath_list = [
+            f"./samples/piano/{n + 1:03}.wav" for n in range(67)
+        ]
+        for filepath in self.notes_filepath_list:
             tmp = pygame.mixer.Sound(filepath)
-            tmp.set_volume(0.2)
-            self.samples.append(tmp)
+            tmp.set_volume(config.base_volume)
+            self.notes_samples.append(tmp)
+        self.kick_samples = []
+        self.kick_filepath_list = [
+            f"./samples/kicks/Kick_{n + 1:03}.wav" for n in range(1)
+        ]
+        for filepath in self.kick_filepath_list:
+            tmp = pygame.mixer.Sound(filepath)
+            tmp.set_volume(0.1)
+            self.kick_samples.append(tmp)
         # Graphics
-        self.color_list = cmr.take_cmap_colors("viridis", 4, return_fmt="hex")
-        self.px_window_size = Vector2(1000, 1000)
+        self.px_window_size = Vector2(1024, 1024)
+        # Create a semi transparent surface which will be blit each time, without screen reset
+        # which will create a trail effect
+        self.alpha_curtain = pygame.Surface(
+            self.px_window_size.to_int_tuple(), pygame.SRCALPHA
+        )
+        self.alpha_curtain.set_alpha(1)
+        pygame.draw.rect(
+            self.alpha_curtain,
+            (0, 0, 0),
+            pygame.Rect(0, 0, *self.px_window_size.to_int_tuple()),
+        )
         ### FPS
-        self.fps = 240
+        self.fps = 120
         self.clock = pygame.time.Clock()
         ### Pygame
         pygame.init()
         pygame.display.set_caption("Bouncy")
         self.display = pygame.display.set_mode(self.px_window_size.to_int_tuple())
-        notes = [0, 4, 8, 11]
         ### Simulation
-        self.balls = [
-            Ball(
-                pos=Vector2(40, 40),
-                velocity=Vector2(200, 200),
-                bounciness=1,
-                # radius=10,
-                color=self.color_list[0],
-                sound_idx=24 + notes[0],
-            ),
-            Ball(
-                pos=Vector2(100, 100),
-                velocity=Vector2(200, 200),
-                bounciness=1,
-                # radius=20,
-                color=self.color_list[1],
-                sound_idx=24 + notes[1],
-            ),
-            Ball(
-                pos=Vector2(250, 250),
-                velocity=Vector2(200, 200),
-                bounciness=1,
-                # radius=30,
-                color=self.color_list[2],
-                sound_idx=24 + notes[2],
-            ),
-            Ball(
-                pos=Vector2(500, 500),
-                velocity=Vector2(200, 200),
-                bounciness=1,
-                # radius=50,
-                color=self.color_list[3],
-                sound_idx=24 + notes[3],
-            ),
-        ]
         self.walls = [
             Wall(Vector2(self.px_window_size.x, 0), Vector2(0, 0)),
             Wall(
@@ -78,11 +60,14 @@ class App(object):
             ),
             Wall(Vector2(0, 0), Vector2(0, self.px_window_size.y)),
             ##
-            Wall(Vector2(50, 800), Vector2(500, 900)),
+            # Wall(Vector2(50, 800), Vector2(500, 900)),
             # Wall(Vector2(500, 900), Vector2(700, 20)),
-            Wall(Vector2(700, 20), Vector2(20, 20)),
-            Wall(Vector2(20, 20), Vector2(50, 800)),
+            # Wall(Vector2(700, 20), Vector2(20, 20)),
+            # Wall(Vector2(20, 20), Vector2(50, 800)),
         ]
+        self.balls = utils.init_balls(
+            10, self.walls, self.px_window_size, len(self.notes_samples)
+        )
 
     def __del__(self):
         pygame.mixer.quit
@@ -96,12 +81,18 @@ class App(object):
                 # Check and apply collisions with the walls
                 for wall in self.walls:
                     if process_wall_collision(wall, ball):
-                        self.samples[ball.sound_idx + 24].play()
-                # Check and apply collisions with the other balls
-                for idx_2, ball_2 in enumerate(self.balls[idx + 1 :]):
-                    if process_ball_collision(ball, ball_2, use_mass=False):
-                        self.samples[ball.sound_idx].play()
-                        self.samples[ball_2.sound_idx].play()
+                        if config.play_wall_collide_sounds:
+                            # self.kick_samples[0].play()
+                            self.notes_samples[ball.sound_idx].play()
+                if config.collide_balls:
+                    # Check and apply collisions with the other balls
+                    for ball_2 in self.balls[idx + 1 :]:
+                        if process_ball_collision(ball, ball_2, use_mass=False):
+                            if config.play_ball_collide_sounds:
+                                self.notes_samples[ball.sound_idx].play()
+                                self.notes_samples[ball_2.sound_idx].play()
+                if ball.velocity.simple_length() < config.stable_treshold:
+                    ball.velocity /= 10
             self.draw()
             pygame.display.update()
 
@@ -118,7 +109,12 @@ class App(object):
                 pygame.quit()
                 return 0
         self.clock.tick(self.fps)
-        self.display.fill("#000000")
+
+        if config.display_mode == 1:
+            self.display.fill((0, 0, 0, 255))
+        elif config.display_mode == 2:
+            self.display.blit(self.alpha_curtain, (0, 0))
+
         return 1
 
 

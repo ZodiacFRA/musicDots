@@ -6,7 +6,7 @@ import numpy as np
 import config
 
 
-def process_wall_collision(wall, ball):
+def process_wall_collision(wall, ball, detection_only=False):
     # in the box?
     vec_test_1 = ball.pos - wall.p1
     vec_test_2 = ball.pos - wall.p2
@@ -16,6 +16,8 @@ def process_wall_collision(wall, ball):
     vec_center_test = ball.pos - wall.center
     center_dot = wall.normal.dot(vec_center_test)
     if vec_dot_1 > 0 and vec_dot_2 > 0 and abs(center_dot) < ball.radius:
+        if detection_only:
+            return True
         # Remove the ball from the wall
         dr = ball.radius - center_dot
         ball.pos = ball.pos + wall.normal * dr
@@ -29,7 +31,8 @@ def process_wall_collision(wall, ball):
         return False
 
 
-def process_ball_collision(ball_1, ball_2, use_mass):
+def process_ball_collision(ball_1, ball_2, use_mass, detection_only=False):
+    """https://stackoverflow.com/questions/345838/ball-to-ball-collision-detection-and-handling"""
     collision = ball_1.pos - ball_2.pos
     # TODO: While I do agree that the balls hit when the distance is the sum of their radii
     # one should never actually calculate this distance!
@@ -38,6 +41,8 @@ def process_ball_collision(ball_1, ball_2, use_mass):
     distance = collision.length()
     balls_overlap = (ball_1.radius + ball_2.radius) - distance
     if balls_overlap >= 0:
+        if detection_only:
+            return True
         # Remove the 1st ball from the 2nd ball
         dr = collision.normalize() * balls_overlap
         dr /= 2

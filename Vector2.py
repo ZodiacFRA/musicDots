@@ -89,3 +89,6 @@ class Vector2(object):
 
     def dot(self, other):
         return self.x * other.x + self.y * other.y
+
+    def is_null(self):
+        return self.x == 0 and self.y == 0
