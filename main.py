@@ -72,7 +72,6 @@ class App(object):
         pygame.mixer.quit
 
     def launch(self):
-        input()
         while self.handle_loop():
             # Update positions
             for idx, ball in enumerate(self.balls):
