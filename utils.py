@@ -15,21 +15,21 @@ def init_balls(balls_nbr, walls, px_window_size, sample_nbr):
     while len(notes) < balls_nbr:
         notes += [n + 12 for n in scale]
     notes = [n % sample_nbr for n in scale]
-
     color_list = cmr.take_cmap_colors("viridis", balls_nbr, return_fmt="hex")
 
     balls = []
     # base_velocity = random.randint(-500, 500)
-    base_velocity = 128
     radius = 64
+    speeds_list = [2 * exp for exp in range(20, 100)]
     tile_nbr = px_window_size // radius
     for idx in range(balls_nbr):
         retry_count = 0
         new_ball = None
         while retry_count < 20:
+            base_velocity = random.choice(speeds_list)
             velocity = Vector2(
                 random.choice([-1, 1]) * base_velocity,
-                0,
+                random.choice([-1, 1]) * base_velocity,
             )
             pos = (
                 Vector2(
@@ -44,9 +44,9 @@ def init_balls(balls_nbr, walls, px_window_size, sample_nbr):
                 radius=radius,
                 bounciness=1,
                 color=color_list[idx],
-                sound_idx=notes[idx],
             )
-            if is_valid_pos(new_ball, walls, balls):
+            if True:
+                new_ball.sound_idx = notes.pop(random.choice(range(len(notes))))
                 balls.append(new_ball)
                 break
     return balls

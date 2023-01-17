@@ -1,3 +1,5 @@
+import random
+
 import pygame
 
 import utils
@@ -66,8 +68,9 @@ class App(object):
             # Wall(Vector2(20, 20), Vector2(50, 800)),
         ]
         self.balls = utils.init_balls(
-            10, self.walls, self.px_window_size, len(self.notes_samples)
+            50, self.walls, self.px_window_size, len(self.notes_samples)
         )
+        random.shuffle(self.balls)
 
     def __del__(self):
         pygame.mixer.quit
