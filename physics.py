@@ -15,8 +15,6 @@ def process_wall_collision(wall, ball):
     # at radius length?
     vec_center_test = ball.pos - wall.center
     center_dot = wall.normal.dot(vec_center_test)
-    # If we want dual side collision use
-    # abs(center_dot) < ball.radius
     if vec_dot_1 > 0 and vec_dot_2 > 0 and abs(center_dot) < ball.radius:
         # Remove the ball from the wall
         dr = ball.radius - center_dot
@@ -31,7 +29,7 @@ def process_wall_collision(wall, ball):
         return False
 
 
-def process_ball_collision(ball_1, ball_2):
+def process_ball_collision(ball_1, ball_2, use_mass):
     collision = ball_1.pos - ball_2.pos
     # TODO: While I do agree that the balls hit when the distance is the sum of their radii
     # one should never actually calculate this distance!
@@ -45,26 +43,36 @@ def process_ball_collision(ball_1, ball_2):
         dr /= 2
         ball_1.pos += dr
         ball_2.pos -= dr
-        # Get the components of the velocity vectors which are parallel to the collision.
-        # The perpendicular component remains the same for both fish
-        collision = collision / distance
-        ball_1_ci = ball_1.velocity.dot(collision)
-        ball_2_ci = ball_2.velocity.dot(collision)
-        # Approximate mass transfer
-        total_mass = ball_1.mass + ball_2.mass
-        new_v1 = (
-            ball_1.velocity * (ball_1.mass - ball_2.mass)
-            + ball_2.velocity * ball_2.mass * 2
-        ) / total_mass
-        new_v2 = (
-            ball_2.velocity * (ball_2.mass - ball_1.mass)
-            + ball_1.velocity * ball_1.mass * 2
-        ) / total_mass
-        # # Replace the collision velocity components with the new ones
-        # ball_1.velocity += collision * (ball_1_cf - ball_1_ci) * config.dampening_factor
-        # ball_2.velocity += collision * (ball_2_cf - ball_2_ci) * config.dampening_factor
-        ball_1.velocity = new_v1
-        ball_2.velocity = new_v2
+
+        if use_mass:
+            # Approximate mass transfer
+            total_mass = ball_1.mass + ball_2.mass
+            new_v1 = (
+                ball_1.velocity * (ball_1.mass - ball_2.mass)
+                + ball_2.velocity * ball_2.mass * 2
+            ) / total_mass
+            new_v2 = (
+                ball_2.velocity * (ball_2.mass - ball_1.mass)
+                + ball_1.velocity * ball_1.mass * 2
+            ) / total_mass
+
+            ball_1.velocity = new_v1
+            ball_2.velocity = new_v2
+        else:
+            # Get the components of the velocity vectors which are parallel to the collision.
+            # The perpendicular component remains the same for both fish
+            collision = collision / distance
+            ball_1_ci = ball_1.velocity.dot(collision)
+            ball_2_ci = ball_2.velocity.dot(collision)
+            ball_1_cf = ball_2_ci
+            ball_2_cf = ball_1_ci
+            # # Replace the collision velocity components with the new ones
+            ball_1.velocity += (
+                collision * (ball_1_cf - ball_1_ci) * config.dampening_factor
+            )
+            ball_2.velocity += (
+                collision * (ball_2_cf - ball_2_ci) * config.dampening_factor
+            )
         return True
     else:
         return False

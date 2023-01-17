@@ -20,7 +20,6 @@ class App(object):
             tmp = pygame.mixer.Sound(filepath)
             tmp.set_volume(0.2)
             self.samples.append(tmp)
-        self.samples = self.samples[24:]
         # Graphics
         self.color_list = cmr.take_cmap_colors("viridis", 4, return_fmt="hex")
         self.px_window_size = Vector2(1000, 1000)
@@ -31,39 +30,40 @@ class App(object):
         pygame.init()
         pygame.display.set_caption("Bouncy")
         self.display = pygame.display.set_mode(self.px_window_size.to_int_tuple())
+        notes = [0, 4, 8, 11]
         ### Simulation
         self.balls = [
             Ball(
                 pos=Vector2(40, 40),
-                velocity=Vector2(400, 0),
+                velocity=Vector2(200, 200),
                 bounciness=1,
-                radius=10,
+                # radius=10,
                 color=self.color_list[0],
-                sound_idx=0,
+                sound_idx=24 + notes[0],
             ),
             Ball(
                 pos=Vector2(100, 100),
-                velocity=Vector2(0, 400),
+                velocity=Vector2(200, 200),
                 bounciness=1,
-                radius=20,
+                # radius=20,
                 color=self.color_list[1],
-                sound_idx=4,
+                sound_idx=24 + notes[1],
             ),
             Ball(
                 pos=Vector2(250, 250),
-                velocity=Vector2(0, 400),
+                velocity=Vector2(200, 200),
                 bounciness=1,
-                radius=30,
+                # radius=30,
                 color=self.color_list[2],
-                sound_idx=8,
+                sound_idx=24 + notes[2],
             ),
             Ball(
                 pos=Vector2(500, 500),
-                velocity=Vector2(100, 700),
+                velocity=Vector2(200, 200),
                 bounciness=1,
-                radius=50,
+                # radius=50,
                 color=self.color_list[3],
-                sound_idx=11,
+                sound_idx=24 + notes[3],
             ),
         ]
         self.walls = [
@@ -85,11 +85,10 @@ class App(object):
                 # Check and apply collisions with the walls
                 for wall in self.walls:
                     if process_wall_collision(wall, ball):
-                        self.samples[len(self.samples) - 1].play()
-                        # pygame.mixer.Channel(idx).play(self.samples[idx])
+                        self.samples[ball.sound_idx + 24].play()
                 # Check and apply collisions with the other balls
                 for idx_2, ball_2 in enumerate(self.balls[idx + 1 :]):
-                    if process_ball_collision(ball, ball_2):
+                    if process_ball_collision(ball, ball_2, use_mass=False):
                         self.samples[ball.sound_idx].play()
                         self.samples[ball_2.sound_idx].play()
             self.draw()
