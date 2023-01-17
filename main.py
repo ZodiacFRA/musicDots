@@ -13,6 +13,7 @@ class App(object):
     def __init__(self):
         ### Sound
         pygame.mixer.init()
+        pygame.mixer.set_num_channels(20)
         self.samples = []
         self.filepath_list = [f"./samples/{n + 1:03}.wav" for n in range(67)]
         for filepath in self.filepath_list:
@@ -24,7 +25,7 @@ class App(object):
         self.color_list = cmr.take_cmap_colors("viridis", 4, return_fmt="hex")
         self.px_window_size = Vector2(1000, 1000)
         ### FPS
-        self.fps = 60
+        self.fps = 240
         self.clock = pygame.time.Clock()
         ### Pygame
         pygame.init()
@@ -38,6 +39,7 @@ class App(object):
                 bounciness=1,
                 radius=10,
                 color=self.color_list[0],
+                sound_idx=0,
             ),
             Ball(
                 pos=Vector2(100, 100),
@@ -45,6 +47,7 @@ class App(object):
                 bounciness=1,
                 radius=20,
                 color=self.color_list[1],
+                sound_idx=4,
             ),
             Ball(
                 pos=Vector2(250, 250),
@@ -52,6 +55,7 @@ class App(object):
                 bounciness=1,
                 radius=30,
                 color=self.color_list[2],
+                sound_idx=8,
             ),
             Ball(
                 pos=Vector2(500, 500),
@@ -59,6 +63,7 @@ class App(object):
                 bounciness=1,
                 radius=50,
                 color=self.color_list[3],
+                sound_idx=11,
             ),
         ]
         self.walls = [
@@ -80,13 +85,13 @@ class App(object):
                 # Check and apply collisions with the walls
                 for wall in self.walls:
                     if process_wall_collision(wall, ball):
-                        self.samples[idx].play()
+                        self.samples[len(self.samples) - 1].play()
                         # pygame.mixer.Channel(idx).play(self.samples[idx])
                 # Check and apply collisions with the other balls
                 for idx_2, ball_2 in enumerate(self.balls[idx + 1 :]):
                     if process_ball_collision(ball, ball_2):
-                        self.samples[idx].play()
-                        self.samples[idx + 1 + idx_2].play()
+                        self.samples[ball.sound_idx].play()
+                        self.samples[ball_2.sound_idx].play()
             self.draw()
             pygame.display.update()
 
@@ -103,7 +108,7 @@ class App(object):
                 pygame.quit()
                 return 0
         self.clock.tick(self.fps)
-        # self.display.fill("#000000")
+        self.display.fill("#000000")
         return 1
 
 

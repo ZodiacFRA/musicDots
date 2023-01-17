@@ -92,7 +92,14 @@ class Wall(object):
 
 class Ball(object):
     def __init__(
-        self, pos, velocity, bounciness=1, radius=20, color=(255, 255, 255), mass=None
+        self,
+        pos,
+        velocity,
+        bounciness=1,
+        radius=20,
+        color=(255, 255, 255),
+        sound_idx=0,
+        mass=None,
     ):
         self.radius = radius
         self.mass = radius if mass is None else mass
@@ -101,6 +108,7 @@ class Ball(object):
         self.bounciness = bounciness
 
         self.color = color
+        self.sound_idx = sound_idx
 
     def update(self, dt):
         self.pos = self.pos + (self.velocity * dt)
