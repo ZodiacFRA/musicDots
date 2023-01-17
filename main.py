@@ -67,8 +67,19 @@ class App(object):
             ),
         ]
         self.walls = [
+            Wall(Vector2(self.px_window_size.x, 0), Vector2(0, 0)),
+            Wall(
+                Vector2(self.px_window_size.x, self.px_window_size.y),
+                Vector2(self.px_window_size.x, 0),
+            ),
+            Wall(
+                Vector2(0, self.px_window_size.y),
+                Vector2(self.px_window_size.x, self.px_window_size.y),
+            ),
+            Wall(Vector2(0, 0), Vector2(0, self.px_window_size.y)),
+            ##
             Wall(Vector2(50, 800), Vector2(500, 900)),
-            Wall(Vector2(500, 900), Vector2(700, 20)),
+            # Wall(Vector2(500, 900), Vector2(700, 20)),
             Wall(Vector2(700, 20), Vector2(20, 20)),
             Wall(Vector2(20, 20), Vector2(50, 800)),
         ]
