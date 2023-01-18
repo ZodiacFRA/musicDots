@@ -1,22 +1,51 @@
 from Vector2 import Vector2
 
-
+### App
+seed = -1
 # Simulation
-dampening_factor = 0.9
-gravity = Vector2(0, 10)
-gravity_rotation_speed = 0.0005
+dampening_factor = 1
+gravity = Vector2(0, 0)
+gravity_rotation_speed = 0  # 0.0005
 sim_resolution = 0.02
 stable_treshold = 10  # in pixels length not sqrt (big values)
-collide_balls = True
-
+collide_balls = False
 # Graphics
 display_mode = 2
 fade_slowness = 1
 merge_colors = False
-# Audio
-base_volume = 0.1
-play_wall_collide_sounds = False
-play_ball_collide_sounds = True
 
-# scale = [0, 2, 3, 5, 7, 8, 10]
-scale = [0, 7]
+### Audio
+base_volume = 0.5
+play_wall_collide_sounds = True
+play_ball_collide_sounds = True
+# Samples
+process_samples = False
+# Musical
+scale = [0, 3, 7]
+repitch_scale = [3, 5, 6, 7, 12, 15, 17, 18, 19, 24]
+named_scales = {
+    "major": (2, 2, 1, 2, 2, 2, 1),
+    "minor": (2, 1, 2, 2, 1, 2, 2),
+    "melodicminor": (2, 1, 2, 2, 2, 2, 1),
+    "harmonicminor": (2, 1, 2, 2, 1, 3, 1),
+    "pentatonicmajor": (2, 2, 3, 2, 3),
+    "bluesmajor": (3, 2, 1, 1, 2, 3),
+    "pentatonicminor": (3, 2, 2, 3, 2),
+    "bluesminor": (3, 2, 1, 1, 3, 2),
+    "augmented": (3, 1, 3, 1, 3, 1),
+    "diminished": (2, 1, 2, 1, 2, 1, 2, 1),
+    "chromatic": (1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1),
+    "wholehalf": (2, 1, 2, 1, 2, 1, 2, 1),
+    "halfwhole": (1, 2, 1, 2, 1, 2, 1, 2),
+    "wholetone": (2, 2, 2, 2, 2, 2),
+    "augmentedfifth": (2, 2, 1, 2, 1, 1, 2, 1),
+    "japanese": (1, 4, 2, 1, 4),
+    "oriental": (1, 3, 1, 1, 3, 1, 2),
+    "ionian": (2, 2, 1, 2, 2, 2, 1),
+    "dorian": (2, 1, 2, 2, 2, 1, 2),
+    "phrygian": (1, 2, 2, 2, 1, 2, 2),
+    "lydian": (2, 2, 2, 1, 2, 2, 1),
+    "mixolydian": (2, 2, 1, 2, 2, 1, 2),
+    "aeolian": (2, 1, 2, 2, 1, 2, 2),
+    "locrian": (1, 2, 2, 1, 2, 2, 2),
+}

@@ -3,7 +3,9 @@ import random
 
 import pygame
 
+import init
 import utils
+import display_utils
 import config
 from physics import *
 from Vector2 import *
@@ -12,21 +14,16 @@ from Audio import Audio
 
 class App(object):
     def __init__(self):
-        random.seed(42)
+        if config.seed >= 0:
+            random.seed(config.seed)
         ### Sound
         self.audio = Audio()
         # Graphics
-        self.px_window_size = Vector2(1024, 1024)
+        self.px_window_size = Vector2(1024, 512)
         # Create a semi transparent surface which will be blit each time, without screen reset
         # which will create a trail effect
-        self.alpha_curtain = pygame.Surface(
-            self.px_window_size.to_int_tuple(), pygame.SRCALPHA
-        )
-        self.alpha_curtain.set_alpha(1)
-        pygame.draw.rect(
-            self.alpha_curtain,
-            (0, 0, 0),
-            pygame.Rect(0, 0, *self.px_window_size.to_int_tuple()),
+        self.black_fadeout_surface = display_utils.create_occlusion_surface(
+            self.px_window_size, 1
         )
         ### FPS
         self.elapsed_ticks = 0
@@ -37,27 +34,11 @@ class App(object):
         pygame.display.set_caption("Bouncy")
         self.display = pygame.display.set_mode(self.px_window_size.to_int_tuple())
         ### Simulation
-        self.walls = [
-            Wall(Vector2(self.px_window_size.x, 0), Vector2(0, 0)),
-            Wall(
-                Vector2(self.px_window_size.x, self.px_window_size.y),
-                Vector2(self.px_window_size.x, 0),
-            ),
-            Wall(
-                Vector2(0, self.px_window_size.y),
-                Vector2(self.px_window_size.x, self.px_window_size.y),
-            ),
-            Wall(Vector2(0, 0), Vector2(0, self.px_window_size.y)),
-            ##
-            # Wall(Vector2(50, 800), Vector2(500, 900)),
-            # Wall(Vector2(500, 900), Vector2(700, 20)),
-            # Wall(Vector2(700, 20), Vector2(20, 20)),
-            # Wall(Vector2(20, 20), Vector2(50, 800)),
-        ]
-        self.balls = utils.init_balls(
-            20, self.walls, self.px_window_size, self.audio.get_bank_len("perc")
+        self.walls = init.walls(self.px_window_size)
+        self.balls = init.balls(
+            5, self.walls, self.px_window_size, self.audio.get_bank_len("piano")
         )
-        random.shuffle(self.balls)
+        self.dots = init.dots(self.px_window_size)
 
     def launch(self):
         while self.handle_loop():
@@ -82,7 +63,6 @@ class App(object):
             self.draw()
             if config.gravity_rotation_speed:
                 config.gravity = config.gravity.rotate(config.gravity_rotation_speed)
-            pygame.display.update()
 
     def draw(self):
         for ball in self.balls:
@@ -91,20 +71,23 @@ class App(object):
             wall.draw(self.display)
 
     def handle_loop(self, debug=False):
+        pygame.display.update()
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 print("[ ] - App: Stopping")
                 pygame.quit()
                 return 0
         self.clock.tick(self.fps)
+        self.apply_display_mode()
+        self.elapsed_ticks += 1
+        return 1
 
+    def apply_display_mode(self):
         if config.display_mode == 1:
             self.display.fill((0, 0, 0, 255))
         elif config.display_mode == 2:
             if not self.elapsed_ticks % config.fade_slowness:
-                self.display.blit(self.alpha_curtain, (0, 0))
-        self.elapsed_ticks += 1
-        return 1
+                self.display.blit(self.black_fadeout_surface, (0, 0))
 
 
 if __name__ == "__main__":
