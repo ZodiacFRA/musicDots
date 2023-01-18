@@ -92,3 +92,9 @@ class Vector2(object):
 
     def is_null(self):
         return self.x == 0 and self.y == 0
+
+    def ln_range_transform(self):
+        return int(math.log(max(0.1, self.simple_length()), math.e))
+
+    def artistic_velocity(self):
+        return abs(self.x * self.y)

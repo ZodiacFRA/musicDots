@@ -1,3 +1,4 @@
+""" https://www.youtube.com/shorts/MzVcBnxSHz4 """
 import random
 
 import pygame
@@ -6,29 +7,14 @@ import utils
 import config
 from physics import *
 from Vector2 import *
+from Audio import Audio
 
 
 class App(object):
     def __init__(self):
+        random.seed(42)
         ### Sound
-        pygame.mixer.init()
-        pygame.mixer.set_num_channels(50)
-        self.notes_samples = []
-        self.notes_filepath_list = [
-            f"./samples/piano/{n + 1:03}.wav" for n in range(67)
-        ]
-        for filepath in self.notes_filepath_list:
-            tmp = pygame.mixer.Sound(filepath)
-            tmp.set_volume(config.base_volume)
-            self.notes_samples.append(tmp)
-        self.kick_samples = []
-        self.kick_filepath_list = [
-            f"./samples/kicks/Kick_{n + 1:03}.wav" for n in range(1)
-        ]
-        for filepath in self.kick_filepath_list:
-            tmp = pygame.mixer.Sound(filepath)
-            tmp.set_volume(0.1)
-            self.kick_samples.append(tmp)
+        self.audio = Audio()
         # Graphics
         self.px_window_size = Vector2(1024, 1024)
         # Create a semi transparent surface which will be blit each time, without screen reset
@@ -43,6 +29,7 @@ class App(object):
             pygame.Rect(0, 0, *self.px_window_size.to_int_tuple()),
         )
         ### FPS
+        self.elapsed_ticks = 0
         self.fps = 120
         self.clock = pygame.time.Clock()
         ### Pygame
@@ -68,12 +55,9 @@ class App(object):
             # Wall(Vector2(20, 20), Vector2(50, 800)),
         ]
         self.balls = utils.init_balls(
-            50, self.walls, self.px_window_size, len(self.notes_samples)
+            20, self.walls, self.px_window_size, self.audio.get_bank_len("perc")
         )
         random.shuffle(self.balls)
-
-    def __del__(self):
-        pygame.mixer.quit
 
     def launch(self):
         while self.handle_loop():
@@ -85,18 +69,19 @@ class App(object):
                 for wall in self.walls:
                     if process_wall_collision(wall, ball):
                         if config.play_wall_collide_sounds:
-                            # self.kick_samples[0].play()
-                            self.notes_samples[ball.sound_idx].play()
+                            self.audio.play(ball)
                 if config.collide_balls:
                     # Check and apply collisions with the other balls
                     for ball_2 in self.balls[idx + 1 :]:
                         if process_ball_collision(ball, ball_2, use_mass=False):
                             if config.play_ball_collide_sounds:
-                                self.notes_samples[ball.sound_idx].play()
-                                self.notes_samples[ball_2.sound_idx].play()
+                                self.audio.play(ball)
+                                self.audio.play(ball_2)
                 if ball.velocity.simple_length() < config.stable_treshold:
                     ball.velocity /= 10
             self.draw()
+            if config.gravity_rotation_speed:
+                config.gravity = config.gravity.rotate(config.gravity_rotation_speed)
             pygame.display.update()
 
     def draw(self):
@@ -116,8 +101,9 @@ class App(object):
         if config.display_mode == 1:
             self.display.fill((0, 0, 0, 255))
         elif config.display_mode == 2:
-            self.display.blit(self.alpha_curtain, (0, 0))
-
+            if not self.elapsed_ticks % config.fade_slowness:
+                self.display.blit(self.alpha_curtain, (0, 0))
+        self.elapsed_ticks += 1
         return 1
 
 

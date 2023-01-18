@@ -26,6 +26,7 @@ def process_wall_collision(wall, ball, detection_only=False):
         ball.velocity = ball.velocity - tmp * 2
         # Dampening
         ball.velocity *= ball.bounciness * config.dampening_factor
+        ball.wall_collisions_count += 1
         return True
     else:
         return False
@@ -48,6 +49,11 @@ def process_ball_collision(ball_1, ball_2, use_mass, detection_only=False):
         dr /= 2
         ball_1.pos += dr
         ball_2.pos -= dr
+        ball_1.ball_collisions_count += 1
+        ball_2.ball_collisions_count += 1
+
+        if config.merge_colors:
+            merge_colors(ball_1, ball_2)
 
         if use_mass:
             # Approximate mass transfer
@@ -81,6 +87,26 @@ def process_ball_collision(ball_1, ball_2, use_mass, detection_only=False):
         return True
     else:
         return False
+
+
+def merge_colors(ball_1, ball_2):
+    r1, r2 = merge_single(ball_1.color[0], ball_2.color[0])
+    g1, g2 = merge_single(ball_1.color[1], ball_2.color[1])
+    b1, b2 = merge_single(ball_1.color[2], ball_2.color[2])
+    ball_1.color = (r1, g1, b1)
+    ball_2.color = (r2, g2, b2)
+
+
+def merge_single(v1, v2):
+    m = (v1 + v2) / 2
+    v1 *= 5
+    v1 += m
+    v1 /= 6
+
+    v2 *= 5
+    v2 += m
+    v2 /= 6
+    return v1, v2
 
 
 class Wall(object):
@@ -122,6 +148,8 @@ class Ball(object):
 
         self.color = color
         self.sound_idx = sound_idx
+        self.ball_collisions_count = 0
+        self.wall_collisions_count = 0
 
     def update(self, dt):
         self.pos = self.pos + (self.velocity * dt)
@@ -130,7 +158,13 @@ class Ball(object):
         pygame.draw.circle(
             screen,
             self.color,
+            # "#ffffff",
             self.pos.to_int_tuple(),
-            int(self.radius),
-            int(self.radius),
+            # radius=int(self.radius / 2),
+            # radius=self.velocity.ln_range_transform() * 2,
+            radius=int(self.velocity.simple_length() / 1000),
+            width=0,
         )
+
+    def get_sample_idx(self, samples_nbr):
+        return (self.sound_idx + 1 * self.wall_collisions_count) % samples_nbr

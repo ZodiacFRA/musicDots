@@ -8,18 +8,19 @@ from Vector2 import Vector2
 
 def init_balls(balls_nbr, walls, px_window_size, sample_nbr):
     # Create the available notes, based on the scale and the number of balls
-    scale = [0, 3, 5, 7, 10, 12]
-    offset = 24
-    scale = [n + offset for n in scale]
+    offset = 12
+    scale = [n + offset for n in config.scale]
     notes = scale
     while len(notes) < balls_nbr:
         notes += [n + 12 for n in scale]
     notes = [n % sample_nbr for n in scale]
-    color_list = cmr.take_cmap_colors("viridis", balls_nbr, return_fmt="hex")
+    # https://matplotlib.org/stable/tutorials/colors/colormaps.html
+    # cool
+    color_list = cmr.take_cmap_colors("viridis", balls_nbr, return_fmt="int")
 
     balls = []
     # base_velocity = random.randint(-500, 500)
-    radius = 64
+    radius = 8
     speeds_list = [2 * exp for exp in range(20, 100)]
     tile_nbr = px_window_size // radius
     for idx in range(balls_nbr):
@@ -45,8 +46,9 @@ def init_balls(balls_nbr, walls, px_window_size, sample_nbr):
                 bounciness=1,
                 color=color_list[idx],
             )
-            if True:
-                new_ball.sound_idx = notes.pop(random.choice(range(len(notes))))
+            if is_valid_pos(new_ball, walls, balls):
+                new_ball.sound_idx = notes[idx]
+                # new_ball.sound_idx = notes.pop(random.choice(range(len(notes))))
                 balls.append(new_ball)
                 break
     return balls
