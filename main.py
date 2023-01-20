@@ -19,7 +19,7 @@ class App(object):
         ### Sound
         self.audio = Audio()
         # Graphics
-        self.color_list = display_utils.get_color_list(config.balls_nbr)
+        self.color_list = display_utils.get_color_list(config.balls_nbr, "cool")
         self.px_window_size = config.t_size * config.balls_radius
         # Create a semi transparent surface which will be blit each time, without screen reset
         # which will create a trail effect
@@ -57,8 +57,8 @@ class App(object):
                 ball_1.update(config.sim_resolution)
                 # Check boundaries collisions
                 if process_borders_collisions(ball_1, self.px_window_size):
+                    self.audio.play(ball_1, "piano")
                     pass
-                    # self.audio.play(ball)
                 # Wall collisions
                 if self.walls:
                     for wall in self.walls:
@@ -78,7 +78,7 @@ class App(object):
                         ball_1, dot, False, detection_only=True, radius_ratio=3
                     ):
                         to_be_removed_dots.add(dot_idx)
-                        self.audio.play(ball_1)
+                        self.audio.play(ball_1, "perc")
 
             to_be_removed_dots = list(to_be_removed_dots)
             to_be_removed_dots.sort(reverse=True)

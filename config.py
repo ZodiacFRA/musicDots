@@ -3,7 +3,7 @@ from Vector2 import Vector2
 ### App
 seed = -1
 # Simulation
-t_size = Vector2(10, 32)
+t_size = Vector2(14, 12)
 balls_nbr = 5
 balls_radius = 32
 dampening_factor = 1
@@ -15,7 +15,7 @@ quantize_position = True
 collide_balls = False
 # Graphics
 display_mode = 2
-fade_slowness = 1
+fade_slowness = 5
 merge_colors = False
 
 ### Audio

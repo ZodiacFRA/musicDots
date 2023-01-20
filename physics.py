@@ -29,10 +29,7 @@ def process_borders_collisions(ball, px_window_size):
         is_colliding = True
 
     if config.quantize_position and is_colliding:
-        ball.pos.round_to_int()
-        # Trick to prevent the division from skipping a tick
-        ball.pos += Vector2(config.balls_radius // 4, config.balls_radius // 4)
-        ball.pos = (ball.pos // config.balls_radius) * config.balls_radius
+        ball.align_to_grid(config.balls_radius)
     return is_colliding
 
 

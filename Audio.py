@@ -28,11 +28,14 @@ class Audio(object):
         ### Data
         self.samples = {
             "piano": audio_utils.load_sample_dir("./samples/piano"),
-            "perc": audio_utils.load_sample_dir("./samples/perc/processed"),
+            "perc": audio_utils.load_sample_dir("./samples/perc"),
         }
 
     def play(self, ball, bank="piano"):
-        sample = self.samples[bank][ball.get_sample_idx(len(self.samples[bank]))]
+        if bank == "perc":
+            sample = self.samples["perc"][1]
+        else:
+            sample = self.samples[bank][ball.get_sample_idx(len(self.samples[bank]))]
         # sample.set_volume(ball.velocity.artistic_velocity() / 80000)
         sample.play()
 
