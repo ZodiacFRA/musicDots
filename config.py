@@ -3,10 +3,10 @@ from Vector2 import Vector2
 ### App
 seed = -1
 # Simulation
-t_size = Vector2(14, 12)
-balls_nbr = 5
+t_size = Vector2(59, 32)
+balls_nbr = 30
 balls_radius = 32
-dampening_factor = 1
+dampening_factor = 0.8
 gravity = Vector2(0, 0)
 gravity_rotation_speed = 0  # 0.0005
 sim_resolution = 1
@@ -15,13 +15,14 @@ quantize_position = True
 collide_balls = False
 # Graphics
 display_mode = 2
-fade_slowness = 5
-merge_colors = False
+fade_slowness = 15
+merge_colors = True
+draw_grid = False
 
 ### Audio
 base_volume = 0.1
 play_wall_collide_sounds = True
-play_ball_collide_sounds = True
+play_ball_collide_sounds = False
 # Samples
 process_samples = False
 # Musical

@@ -44,7 +44,7 @@ class Ball(object):
             # color=color,
             center=self.pos.to_int_tuple(),
             # radius=int(self.radius),
-            radius=int(self.radius / 3),
+            radius=int(self.radius / 4),
             # radius=self.velocity.ln_range_transform() * 2,
             # radius=int(self.velocity.simple_length() / 1000),
             width=0,

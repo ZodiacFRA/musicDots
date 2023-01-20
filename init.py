@@ -11,12 +11,12 @@ from Vector2 import Vector2
 
 def balls(walls, px_window_size, color_list, shuffle=False):
     notes = audio_utils.get_scale_notes_indexes(
-        scale_name="pentatonicminor", offset=42, max_nbr=config.balls_nbr * 3
+        scale_name="oriental", offset=42, max_nbr=config.balls_nbr * 3
     )
     balls = []
     # base_velocity = random.randint(-500, 500)
     radius = config.balls_radius
-    speeds_list = [0.5, 1]
+    speeds_list = [0.5, 1, 2, 4, 8]
     tile_nbr = px_window_size // radius
     for idx in range(config.balls_nbr):
         retry_count = 0

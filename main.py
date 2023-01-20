@@ -68,7 +68,9 @@ class App(object):
                 # Check and apply collisions with the other balls
                 if config.collide_balls and config.balls_nbr > 1:
                     for ball_2 in self.balls[idx_ball_1 + 1 :]:
-                        if process_ball_collision(ball_1, ball_2, use_mass=False):
+                        if process_ball_collision(
+                            ball_1, ball_2, use_mass=False, radius_ratio=4
+                        ):
                             if config.play_ball_collide_sounds:
                                 self.audio.play(ball_1)
                                 self.audio.play(ball_2)
@@ -90,7 +92,8 @@ class App(object):
                 config.gravity = config.gravity.rotate(config.gravity_rotation_speed)
 
     def draw(self):
-        # self.draw_grid()
+        if config.draw_grid:
+            self.draw_grid()
         for dot in self.dots:
             dot.draw(self.display)
         for ball in self.balls:

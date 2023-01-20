@@ -28,8 +28,10 @@ def process_borders_collisions(ball, px_window_size):
         ball.velocity.y *= -1
         is_colliding = True
 
-    if config.quantize_position and is_colliding:
-        ball.align_to_grid(config.balls_radius)
+    if is_colliding:
+        ball.velocity *= config.dampening_factor
+        if config.quantize_position:
+            ball.align_to_grid(config.balls_radius)
     return is_colliding
 
 
