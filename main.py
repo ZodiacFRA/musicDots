@@ -4,7 +4,6 @@ import random
 import pygame
 
 import init
-import utils
 import display_utils
 import config
 from physics import *
@@ -27,11 +26,11 @@ class App(object):
             self.px_window_size, 1
         )
         self.grid_surface = display_utils.create_grid_surface(
-            self.px_window_size, config.balls_radius, color="#000000"
+            self.px_window_size, config.balls_radius, color="#444444", type="dots"
         )
         ### FPS
         self.elapsed_ticks = 0
-        self.fps = 120
+        self.fps = 60
         self.clock = pygame.time.Clock()
         ### Pygame
         pygame.init()
@@ -46,25 +45,26 @@ class App(object):
         )
         if len(self.balls) <= 1:
             config.balls_nbr = len(self.balls)
-        self.dots = init.dots(self.balls, self.walls, self.color_list)
+        self.dots = init.dots(self.color_list)
 
     def launch(self):
         while self.handle_loop():
+            if config.gravity_rotation_speed:
+                config.gravity = config.gravity.rotate(config.gravity_rotation_speed)
             # Update positions
-            to_be_removed_dots = set()
             for idx_ball_1, ball_1 in enumerate(self.balls):
                 ball_1.velocity += config.gravity * config.sim_resolution
                 ball_1.update(config.sim_resolution)
                 # Check boundaries collisions
                 if process_borders_collisions(ball_1, self.px_window_size):
-                    self.audio.play(ball_1, "piano")
+                    self.audio.play(ball_1.id, 0)
                     pass
                 # Wall collisions
                 if self.walls:
                     for wall in self.walls:
                         if process_wall_collision(wall, ball_1):
                             if config.play_wall_collide_sounds:
-                                self.audio.play(ball_1)
+                                self.audio.play(ball_1.id, 1)
                 # Check and apply collisions with the other balls
                 if config.collide_balls and config.balls_nbr > 1:
                     for ball_2 in self.balls[idx_ball_1 + 1 :]:
@@ -72,24 +72,19 @@ class App(object):
                             ball_1, ball_2, use_mass=False, radius_ratio=4
                         ):
                             if config.play_ball_collide_sounds:
-                                self.audio.play(ball_1)
-                                self.audio.play(ball_2)
+                                self.audio.play(ball_1.id, 2)
+                                self.audio.play(ball_2.id, 2)
                 # With points
-                for dot_idx, dot in enumerate(self.dots):
-                    if process_ball_collision(
-                        ball_1, dot, False, detection_only=True, radius_ratio=3
-                    ):
-                        to_be_removed_dots.add(dot_idx)
-                        self.audio.play(ball_1, "perc")
-
-            to_be_removed_dots = list(to_be_removed_dots)
-            to_be_removed_dots.sort(reverse=True)
-            for dot_idx in to_be_removed_dots:
-                self.dots.pop(dot_idx)
-
+                # to_be_removed_dots = set()
+                # for dot in self.dots:
+                #     if process_ball_collision(
+                #         ball_1, dot, False, detection_only=True, radius_ratio=3
+                #     ):
+                #         to_be_removed_dots.add(dot)
+                #         self.audio.play(ball_1.id, 3)
+                # for dot in to_be_removed_dots:
+                #     self.dots.remove(dot)
             self.draw()
-            if config.gravity_rotation_speed:
-                config.gravity = config.gravity.rotate(config.gravity_rotation_speed)
 
     def draw(self):
         if config.draw_grid:

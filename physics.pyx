@@ -96,7 +96,7 @@ def process_ball_collision(
 
 
 def separate_balls(ball_1, ball_2, balls_overlap, collision):
-    # Remove the 1st ball from the 2nd ball
+    """Remove the 1st ball from the 2nd ball"""
     dr = collision.normalize() * balls_overlap
     dr /= 2
     ball_1.pos += dr
@@ -104,16 +104,17 @@ def separate_balls(ball_1, ball_2, balls_overlap, collision):
 
 
 def apply_ball_collision(ball_1, ball_2, distance, collision, use_mass):
+    """Use the radius as the mass"""
     if use_mass:
         # Approximate mass transfer
-        total_mass = ball_1.mass + ball_2.mass
+        total_mass = ball_1.radius + ball_2.radius
         new_v1 = (
-            ball_1.velocity * (ball_1.mass - ball_2.mass)
-            + ball_2.velocity * ball_2.mass * 2
+            ball_1.velocity * (ball_1.radius - ball_2.radius)
+            + ball_2.velocity * ball_2.radius * 2
         ) / total_mass
         new_v2 = (
-            ball_2.velocity * (ball_2.mass - ball_1.mass)
-            + ball_1.velocity * ball_1.mass * 2
+            ball_2.velocity * (ball_2.radius - ball_1.radius)
+            + ball_1.velocity * ball_1.radius * 2
         ) / total_mass
 
         ball_1.velocity = new_v1

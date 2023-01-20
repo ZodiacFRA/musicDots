@@ -3,20 +3,16 @@ import random
 import utils
 import config
 import audio_utils
-import display_utils
 from Ball import Ball
-from Wall import Wall
 from Vector2 import Vector2
 
 
 def balls(walls, px_window_size, color_list, shuffle=False):
-    notes = audio_utils.get_scale_notes_indexes(
-        scale_name="oriental", offset=42, max_nbr=config.balls_nbr * 3
-    )
+
     balls = []
     # base_velocity = random.randint(-500, 500)
     radius = config.balls_radius
-    speeds_list = [0.5, 1, 2, 4, 8]
+    speeds_list = [0.5, 1, 2, 4]
     tile_nbr = px_window_size // radius
     for idx in range(config.balls_nbr):
         retry_count = 0
@@ -35,6 +31,7 @@ def balls(walls, px_window_size, color_list, shuffle=False):
                 * radius
             )
             new_ball = Ball(
+                id=idx,
                 pos=pos,
                 velocity=velocity,
                 radius=radius,
@@ -42,7 +39,6 @@ def balls(walls, px_window_size, color_list, shuffle=False):
                 color=color_list[idx],
             )
             if utils.is_valid_pos(new_ball, walls, balls):
-                new_ball.sound_idx = notes[idx]
                 # new_ball.sound_idx = notes.pop(random.choice(range(len(notes))))
                 # new_ball.sound_idx = notes.pop(random.choice(range(sample_nbr)))
                 balls.append(new_ball)
@@ -58,17 +54,20 @@ def walls(px_window_size):
     return res
 
 
-def dots(balls, walls, color_list):
+def dots(color_list):
     res = []
+    idx = 0
     for y in range(1, config.t_size.y):
         for x in range(1, config.t_size.x):
             new_ball = Ball(
+                id=config.balls_nbr + idx,
                 pos=Vector2(x=x, y=y) * config.balls_radius,
                 velocity=Vector2(0, 0),
-                radius=5,
+                radius=6,
                 bounciness=1,
                 color="#ffffff",
                 # color=color_list[0],
             )
             res.append(new_ball)
+            idx += 1
     return res

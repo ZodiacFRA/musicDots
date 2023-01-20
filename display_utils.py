@@ -1,6 +1,7 @@
 import pygame
 import cmasher as cmr
 
+import config
 from Vector2 import Vector2
 
 
@@ -41,12 +42,23 @@ def get_color_list(nbr, cm="cool", return_fmt="int"):
     # cool viridis
 
 
-def create_grid_surface(px_panel_size, px_tile_size, color):
+def create_grid_surface(px_panel_size, px_tile_size, color, alpha=25, type="lines"):
     px_surface_size = px_panel_size + Vector2(px_tile_size, px_tile_size)
     grid_surface = pygame.Surface(px_surface_size.to_tuple(), pygame.SRCALPHA)
-    grid_surface.set_alpha(25)
-    for y in range(px_tile_size, px_surface_size.y, px_tile_size):
-        pygame.draw.line(grid_surface, color, (0, y), (px_surface_size.x, y))
-    for x in range(px_tile_size, px_surface_size.x, px_tile_size):
-        pygame.draw.line(grid_surface, color, (x, 0), (x, px_surface_size.y))
+    grid_surface.set_alpha(alpha)
+    if type == "lines":
+        for y in range(px_tile_size, px_surface_size.y, px_tile_size):
+            pygame.draw.line(grid_surface, color, (0, y), (px_surface_size.x, y))
+        for x in range(px_tile_size, px_surface_size.x, px_tile_size):
+            pygame.draw.line(grid_surface, color, (x, 0), (x, px_surface_size.y))
+    elif type == "dots":
+        for y in range(1, config.t_size.y):
+            for x in range(1, config.t_size.x):
+                pygame.draw.circle(
+                    grid_surface,
+                    color=color,
+                    center=(Vector2(y=y, x=x) * px_tile_size).to_int_tuple(),
+                    radius=int(config.balls_radius / 20),
+                    width=0,
+                )
     return grid_surface

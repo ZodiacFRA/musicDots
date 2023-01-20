@@ -18,6 +18,9 @@ import audio_utils
 class Audio(object):
     def __init__(self):
         self.samplerate = 44100.0
+        self.notes = audio_utils.get_scale_notes_indexes(
+            scale_name="minor", offset=42, max_nbr=config.balls_nbr * 3
+        )
         ### Pygame
         pygame.mixer.init()
         pygame.mixer.set_num_channels(50)
@@ -31,11 +34,17 @@ class Audio(object):
             "perc": audio_utils.load_sample_dir("./samples/perc"),
         }
 
-    def play(self, ball, bank="piano"):
-        if bank == "perc":
-            sample = self.samples["perc"][1]
+    def play(self, id, collision_type):
+        if not config.use_sound:
+            return
+        if collision_type == 0:
+            sample = self.samples["piano"][id]
+        elif collision_type == 1:
+            sample = self.samples["piano"][id]
+        elif collision_type == 2:
+            sample = self.samples["piano"][id]
         else:
-            sample = self.samples[bank][ball.get_sample_idx(len(self.samples[bank]))]
+            sample = self.samples["perc"][1]
         # sample.set_volume(ball.velocity.artistic_velocity() / 80000)
         sample.play()
 

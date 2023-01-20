@@ -6,6 +6,7 @@ from Vector2 import Vector2
 class Ball(object):
     def __init__(
         self,
+        id,
         pos,
         velocity,
         bounciness=1,
@@ -14,8 +15,8 @@ class Ball(object):
         sound_idx=0,
         mass=None,
     ):
+        self.id = id
         self.radius = radius
-        self.mass = radius if mass is None else mass
         self.pos = pos
         self.velocity = velocity
         self.bounciness = bounciness
