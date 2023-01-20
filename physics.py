@@ -5,6 +5,35 @@ import numpy as np
 
 import config
 import display_utils
+from Vector2 import Vector2
+
+
+def process_borders_collisions(ball, px_window_size):
+    is_colliding = False
+    if ball.pos.x - ball.radius < 0:
+        ball.pos.x = ball.radius
+        ball.velocity.x *= -1
+        is_colliding = True
+    elif ball.pos.x + ball.radius > px_window_size.x:
+        ball.pos.x = px_window_size.x - ball.radius
+        ball.velocity.x *= -1
+        is_colliding = True
+
+    if ball.pos.y - ball.radius < 0:
+        ball.pos.y = ball.radius
+        ball.velocity.y *= -1
+        is_colliding = True
+    elif ball.pos.y + ball.radius > px_window_size.y:
+        ball.pos.y = px_window_size.y - ball.radius
+        ball.velocity.y *= -1
+        is_colliding = True
+
+    if config.quantize_position and is_colliding:
+        ball.pos.round_to_int()
+        # Trick to prevent the division from skipping a tick
+        ball.pos += Vector2(config.balls_radius // 4, config.balls_radius // 4)
+        ball.pos = (ball.pos // config.balls_radius) * config.balls_radius
+    return is_colliding
 
 
 def process_wall_collision(wall, ball, detection_only=False):
@@ -41,7 +70,9 @@ def apply_wall_collision(ball, wall, center_dot):
     ball.velocity *= ball.bounciness * config.dampening_factor
 
 
-def process_ball_collision(ball_1, ball_2, use_mass, detection_only=False):
+def process_ball_collision(
+    ball_1, ball_2, use_mass, detection_only=False, radius_ratio=1
+):
     """
     https://stackoverflow.com/questions/345838/ball-to-ball-collision-detection-and-handling
     TODO: While I do agree that the balls hit when the distance is the sum of their radii
@@ -51,7 +82,7 @@ def process_ball_collision(ball_1, ball_2, use_mass, detection_only=False):
     """
     collision = ball_1.pos - ball_2.pos
     distance = collision.length()
-    balls_overlap = (ball_1.radius + ball_2.radius) - distance
+    balls_overlap = (ball_1.radius + ball_2.radius) / radius_ratio - distance
     if balls_overlap >= 0:
         if not detection_only:
             separate_balls(ball_1, ball_2, balls_overlap, collision)

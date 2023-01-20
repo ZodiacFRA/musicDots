@@ -24,3 +24,20 @@ def load_sample_to_np_array(filepath, samplerate):
 def write_sample(filepath, data, samplerate):
     with AudioFile(filepath, "w", samplerate, data.shape[0]) as f:
         f.write(data)
+
+
+def get_scale_notes_indexes(offset=0, scale_name="minor", max_nbr=0):
+    """if max_nbr == 0: do not add other octaves to the scale"""
+    # Transform the intervals into indexes
+    note = config.named_scales[scale_name][0]
+    scale = [0, note]
+    for interval in config.named_scales[scale_name][1:]:
+        scale.append(interval + note)
+        note += interval
+    scale = [n + offset for n in scale]
+    if max_nbr == 0:
+        return scale
+    repeated_scale = scale
+    while len(repeated_scale) < max_nbr:
+        repeated_scale += [n + 12 for n in scale]
+    return repeated_scale

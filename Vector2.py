@@ -25,8 +25,8 @@ class Vector2(object):
     def __pow__(self, s):
         return Vector2(y=self.y**s, x=self.x**s)
 
-    # def __mod__(self, s):
-    #     return Vector2(y=self.y % s, x=self.x % s)
+    def __mod__(self, s):
+        return Vector2(y=self.y % s, x=self.x % s)
 
     # def __eq__(self, other):
     #     if self.y == other.y and self.x == other.x:
@@ -98,3 +98,11 @@ class Vector2(object):
 
     def artistic_velocity(self):
         return abs(self.x * self.y)
+
+    def round_to_int_with_mod(self, px_grid_size):
+        self.x = int(self.x % px_grid_size)
+        self.y = int(self.y % px_grid_size)
+
+    def round_to_int(self):
+        self.x = int(self.x)
+        self.y = int(self.y)

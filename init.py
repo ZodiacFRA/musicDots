@@ -2,34 +2,30 @@ import random
 
 import utils
 import config
+import audio_utils
 import display_utils
 from Ball import Ball
 from Wall import Wall
 from Vector2 import Vector2
 
 
-def balls(balls_nbr, walls, px_window_size, sample_nbr, shuffle=False):
-    # Create the available notes, based on the scale and the number of balls
-    offset = 24
-    scale = [n + offset for n in config.scale]
-    notes = scale
-    while len(notes) < balls_nbr:
-        notes += [n + 12 for n in scale]
-    notes = [n % sample_nbr for n in notes]
-    color_list = display_utils.get_color_list(balls_nbr)
+def balls(walls, px_window_size, color_list, shuffle=False):
+    notes = audio_utils.get_scale_notes_indexes(
+        scale_name="japanese", offset=42, max_nbr=config.balls_nbr * 3
+    )
     balls = []
     # base_velocity = random.randint(-500, 500)
-    radius = 32
-    speeds_list = [2 * exp for exp in range(20, 100)]
+    radius = config.balls_radius
+    speeds_list = [1, 2, 4]
     tile_nbr = px_window_size // radius
-    for idx in range(balls_nbr):
+    for idx in range(config.balls_nbr):
         retry_count = 0
         new_ball = None
         while retry_count < 20:
             base_velocity = random.choice(speeds_list)
             velocity = Vector2(
-                random.choice([-1, 1]) * base_velocity,
-                random.choice([-1, 1]) * base_velocity,
+                random.choice([-1, -1, 0, 1, 1]) * base_velocity,
+                random.choice([-1, -1, 0, 1, 1]) * base_velocity,
             )
             pos = (
                 Vector2(
@@ -48,6 +44,7 @@ def balls(balls_nbr, walls, px_window_size, sample_nbr, shuffle=False):
             if utils.is_valid_pos(new_ball, walls, balls):
                 new_ball.sound_idx = notes[idx]
                 # new_ball.sound_idx = notes.pop(random.choice(range(len(notes))))
+                # new_ball.sound_idx = notes.pop(random.choice(range(sample_nbr)))
                 balls.append(new_ball)
                 break
     if shuffle:
@@ -56,21 +53,22 @@ def balls(balls_nbr, walls, px_window_size, sample_nbr, shuffle=False):
 
 
 def walls(px_window_size):
-    res = [
-        Wall(Vector2(px_window_size.x, 0), Vector2(0, 0)),
-        Wall(
-            Vector2(px_window_size.x, px_window_size.y),
-            Vector2(px_window_size.x, 0),
-        ),
-        Wall(
-            Vector2(0, px_window_size.y),
-            Vector2(px_window_size.x, px_window_size.y),
-        ),
-        Wall(Vector2(0, 0), Vector2(0, px_window_size.y)),
-    ]
+    res = []
     # res += utils.add_cross(px_window_size)
     return res
 
 
-def dots(px_window_size):
-    pass
+def dots(balls, walls, color_list):
+    res = []
+    for y in range(1, config.t_size.y):
+        for x in range(1, config.t_size.x):
+            new_ball = Ball(
+                pos=Vector2(x=x, y=y) * config.balls_radius,
+                velocity=Vector2(0, 0),
+                radius=5,
+                bounciness=1,
+                color="#ffffff",
+                # color=color_list[0],
+            )
+            res.append(new_ball)
+    return res

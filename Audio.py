@@ -27,7 +27,7 @@ class Audio(object):
             self.add_effects_to_dir("./samples/piano")
         ### Data
         self.samples = {
-            "piano": audio_utils.load_sample_dir("./samples/piano/processed"),
+            "piano": audio_utils.load_sample_dir("./samples/piano"),
             "perc": audio_utils.load_sample_dir("./samples/perc/processed"),
         }
 
@@ -47,17 +47,20 @@ class Audio(object):
             ]
         )
         for sample_path in tqdm(utils.get_filepaths_from_dir(dir_path)):
-            sample = audio_utils.load_sample_to_np_array(sample_path, self.samplerate)
-            processed_sample_path = os.path.join(
-                dir_path, "processed/", os.path.basename(sample_path)
-            )
-            processed_sample = board(sample, self.samplerate)
-            audio_utils.write_sample(
-                processed_sample_path, processed_sample, self.samplerate
-            )
-            # Animate board params
-            board[3].depth = random.randint(0, 100) / 100
-            board[3].rate_hz = random.randint(0, 20) / 10
+            self.add_effect_to_sample(sample_path, board)
+
+    def add_effect_to_sample(self, sample_path, board):
+        sample = audio_utils.load_sample_to_np_array(sample_path, self.samplerate)
+        processed_sample_path = os.path.join(
+            dir_path, "processed/", os.path.basename(sample_path)
+        )
+        processed_sample = board(sample, self.samplerate)
+        audio_utils.write_sample(
+            processed_sample_path, processed_sample, self.samplerate
+        )
+        # Animate board params
+        board[3].depth = random.randint(0, 100) / 100
+        board[3].rate_hz = random.randint(0, 20) / 10
 
     def repitch_dir(self, dir_path):
         for sample_path in tqdm(utils.get_filepaths_from_dir(dir_path)):

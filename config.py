@@ -3,11 +3,15 @@ from Vector2 import Vector2
 ### App
 seed = -1
 # Simulation
+t_size = Vector2(10, 32)
+balls_nbr = 5
+balls_radius = 32
 dampening_factor = 1
 gravity = Vector2(0, 0)
 gravity_rotation_speed = 0  # 0.0005
-sim_resolution = 0.02
+sim_resolution = 1
 stable_treshold = 10  # in pixels length not sqrt (big values)
+quantize_position = True
 collide_balls = False
 # Graphics
 display_mode = 2
@@ -15,14 +19,12 @@ fade_slowness = 1
 merge_colors = False
 
 ### Audio
-base_volume = 0.5
+base_volume = 0.1
 play_wall_collide_sounds = True
 play_ball_collide_sounds = True
 # Samples
 process_samples = False
 # Musical
-scale = [0, 3, 7]
-repitch_scale = [3, 5, 6, 7, 12, 15, 17, 18, 19, 24]
 named_scales = {
     "major": (2, 2, 1, 2, 2, 2, 1),
     "minor": (2, 1, 2, 2, 1, 2, 2),
