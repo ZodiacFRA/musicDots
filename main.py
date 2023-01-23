@@ -1,4 +1,5 @@
 """ https://www.youtube.com/shorts/MzVcBnxSHz4 """
+import time
 import random
 
 import pygame
@@ -13,7 +14,7 @@ from Audio import Audio
 
 class App(object):
     def __init__(self):
-        if config.seed >= 0:
+        if config.seed != -1:
             random.seed(config.seed)
             print("[ ] - Seed:", config.seed)
         else:
@@ -42,6 +43,7 @@ class App(object):
         self.elapsed_ticks = 0
         self.fps = 60
         self.clock = pygame.time.Clock()
+        self.last_new_ball = time.time()
         ### Pygame
         pygame.init()
         pygame.display.set_caption("Bouncy")
@@ -49,12 +51,8 @@ class App(object):
         ### Simulation
         self.walls = init.walls(self.px_window_size)
         self.balls = init.balls(
-            self.walls,
-            self.px_window_size,
-            self.color_list,
+            self.walls, self.px_window_size, self.color_list, config.inital_ball_nbr
         )
-        if len(self.balls) <= 1:
-            config.balls_nbr = len(self.balls)
         self.dots = init.dots(self.color_list)
         self.rotators = []
 
@@ -73,7 +71,16 @@ class App(object):
         # Check boundaries collisions
         if process_borders_collisions(ball_1, self.px_window_size):
             self.audio.play(ball_1.id, 0)
-            pass
+            if len(self.balls) < config.balls_nbr:
+                self.balls.append(
+                    init.add_new_ball(
+                        len(self.balls),
+                        self.walls,
+                        self.px_window_size,
+                        self.color_list,
+                        self.balls,
+                    )
+                )
         # Wall collisions
         if self.walls:
             for wall in self.walls:

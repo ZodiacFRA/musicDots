@@ -2,9 +2,11 @@ from Vector2 import Vector2
 
 ### App
 seed = -1
-# Simulation (Odd numbers are better)
-t_size = Vector2(6, 6)
-balls_nbr = 2
+# Simulation
+t_size = Vector2(32, 18)
+inital_ball_nbr = 1
+balls_nbr = 15
+
 balls_radius = 32
 dampening_factor = 1
 gravity = Vector2(0, 0)
@@ -21,7 +23,7 @@ draw_grid = True
 draw_cursor = False
 
 ### Audio
-use_sound = True
+use_sound = False
 base_volume = 0.1
 play_wall_collide_sounds = True
 play_ball_collide_sounds = False
@@ -54,3 +56,4 @@ named_scales = {
     "aeolian": (2, 1, 2, 2, 1, 2, 2),
     "locrian": (1, 2, 2, 1, 2, 2, 2),
 }
+scale = "harmonicminor"

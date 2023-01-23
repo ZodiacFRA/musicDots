@@ -13,13 +13,15 @@ from pedalboard import *
 import utils
 import config
 import audio_utils
+from Keyboard import Keyboard
 
 
 class Audio(object):
     def __init__(self):
+        self.keyboard = Keyboard()
         self.samplerate = 44100.0
         self.notes = audio_utils.get_scale_notes_indexes(
-            scale_name="minor", offset=42, max_nbr=config.balls_nbr * 3
+            scale_name=config.scale, offset=42, max_nbr=config.balls_nbr * 3
         )
         ### Pygame
         pygame.mixer.init()
@@ -35,18 +37,22 @@ class Audio(object):
         }
 
     def play(self, id, collision_type):
-        if not config.use_sound:
-            return
+        """walls / balls / dots"""
+        # if not config.use_sound:
+        #     return
         if collision_type == 0:
-            sample = self.samples["piano"][self.notes[id]]
+            self.keyboard.send(self.notes[id], 10)
+            # sample = self.samples["piano"][self.notes[id]]
         elif collision_type == 1:
-            sample = self.samples["piano"][self.notes[id]]
+            self.keyboard.send(self.notes[id], 1)
+            # sample = self.samples["piano"][self.notes[id]]
         elif collision_type == 2:
-            sample = self.samples["piano"][self.notes[id]]
-        else:
-            sample = self.samples["perc"][1]
+            self.keyboard.send(self.notes[id], 1)
+            # sample = self.samples["piano"][self.notes[id]]
+        # else:
+        #     sample = self.samples["perc"][1]
+        #     sample.play()
         # sample.set_volume(ball.velocity.artistic_velocity() / 80000)
-        sample.play()
 
     def add_effects_to_dir(self, dir_path):
         board = Pedalboard(
