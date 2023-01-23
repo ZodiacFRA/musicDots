@@ -22,11 +22,16 @@ class App(object):
         self.px_window_size = config.t_size * config.balls_radius
         # Create a semi transparent surface which will be blit each time, without screen reset
         # which will create a trail effect
-        self.black_fadeout_surface = display_utils.create_occlusion_surface(
+        self.black_fadeout_surface = display_utils.create_surface(
             self.px_window_size, 1
         )
+        self.persistant_surface = display_utils.create_surface(self.px_window_size, 255)
         self.grid_surface = display_utils.create_grid_surface(
-            self.px_window_size, config.balls_radius, color="#444444", type="dots"
+            self.px_window_size,
+            config.balls_radius,
+            color="#ffffff",
+            alpha=75,
+            type="dots",
         )
         ### FPS
         self.elapsed_ticks = 0
@@ -46,6 +51,7 @@ class App(object):
         if len(self.balls) <= 1:
             config.balls_nbr = len(self.balls)
         self.dots = init.dots(self.color_list)
+        self.rotators = []
 
     def launch(self):
         while self.handle_loop():
@@ -53,51 +59,79 @@ class App(object):
                 config.gravity = config.gravity.rotate(config.gravity_rotation_speed)
             # Update positions
             for idx_ball_1, ball_1 in enumerate(self.balls):
-                ball_1.velocity += config.gravity * config.sim_resolution
-                ball_1.update(config.sim_resolution)
-                # Check boundaries collisions
-                if process_borders_collisions(ball_1, self.px_window_size):
-                    self.audio.play(ball_1.id, 0)
-                    pass
-                # Wall collisions
-                if self.walls:
-                    for wall in self.walls:
-                        if process_wall_collision(wall, ball_1):
-                            if config.play_wall_collide_sounds:
-                                self.audio.play(ball_1.id, 1)
-                # Check and apply collisions with the other balls
-                if config.collide_balls and config.balls_nbr > 1:
-                    for ball_2 in self.balls[idx_ball_1 + 1 :]:
-                        if process_ball_collision(
-                            ball_1, ball_2, use_mass=False, radius_ratio=4
-                        ):
-                            if config.play_ball_collide_sounds:
-                                self.audio.play(ball_1.id, 2)
-                                self.audio.play(ball_2.id, 2)
-                # With points
-                # to_be_removed_dots = set()
-                # for dot in self.dots:
-                #     if process_ball_collision(
-                #         ball_1, dot, False, detection_only=True, radius_ratio=3
-                #     ):
-                #         to_be_removed_dots.add(dot)
-                #         self.audio.play(ball_1.id, 3)
-                # for dot in to_be_removed_dots:
-                #     self.dots.remove(dot)
+                self.update_ball(idx_ball_1, ball_1)
             self.draw()
 
-    def draw(self):
-        if config.draw_grid:
-            self.draw_grid()
+    def update_ball(self, idx_ball_1, ball_1):
+        ball_1.velocity += config.gravity * config.sim_resolution
+        ball_1.update(config.sim_resolution)
+        # Check boundaries collisions
+        if process_borders_collisions(ball_1, self.px_window_size):
+            self.audio.play(ball_1.id, 0)
+            pass
+        # Wall collisions
+        if self.walls:
+            for wall in self.walls:
+                if process_wall_collision(wall, ball_1):
+                    if config.play_wall_collide_sounds:
+                        self.audio.play(ball_1.id, 1)
+        # Check and apply collisions with the other balls
+        if config.collide_balls and config.balls_nbr > 1:
+            for ball_2 in self.balls[idx_ball_1 + 1 :]:
+                if process_ball_collision(
+                    ball_1, ball_2, use_mass=False, radius_ratio=4
+                ):
+                    if config.play_ball_collide_sounds:
+                        self.audio.play(ball_1.id, 2)
+                        self.audio.play(ball_2.id, 2)
+        # With points
+        to_be_removed_dots = set()
         for dot in self.dots:
-            dot.draw(self.display)
+            if process_ball_collision(
+                ball_1, dot, False, detection_only=True, radius_ratio=3
+            ):
+                to_be_removed_dots.add(dot)
+                self.audio.play(ball_1.id, 3)
+        for dot in to_be_removed_dots:
+            self.dots.remove(dot)
+        # With rotators
+        for rotator in self.rotators:
+            if process_ball_collision(
+                ball_1, rotator, detection_only=True, radius_ratio=3
+            ):
+                ball_1.rotator = rotator
+
+    def draw(self):
+        self.display.fill((0, 0, 0, 255))
+        for dot in self.dots:
+            dot.draw(self.persistant_surface)
         for ball in self.balls:
-            ball.draw(self.display)
+            ball.draw(self.persistant_surface)
+
+        if config.display_mode == 2:
+            if not self.elapsed_ticks % config.fade_slowness:
+                self.persistant_surface.blit(self.black_fadeout_surface, (0, 0))
+        self.display.blit(self.persistant_surface, (0, 0))
+        if config.draw_grid:
+            self.display.blit(self.grid_surface, (0, 0))
+
         for wall in self.walls:
             wall.draw(self.display)
+        self.draw_cursor()
 
-    def draw_grid(self):
-        self.display.blit(self.grid_surface, (0, 0))
+    def draw_cursor(self):
+        px_cursor_pos = (
+            Vector2(*pygame.mouse.get_pos())
+            + Vector2(config.balls_radius, config.balls_radius) / 2
+        )
+        px_cursor_pos = (px_cursor_pos // config.balls_radius) * config.balls_radius
+        pygame.draw.circle(
+            self.display,
+            color=self.color_list[0],
+            center=px_cursor_pos.to_int_tuple(),
+            radius=int(config.balls_radius / 2),
+            width=1,
+        )
 
     def handle_loop(self, debug=False):
         pygame.display.update()
@@ -107,16 +141,8 @@ class App(object):
                 pygame.quit()
                 return 0
         self.clock.tick(self.fps)
-        self.apply_display_mode()
         self.elapsed_ticks += 1
         return 1
-
-    def apply_display_mode(self):
-        if config.display_mode == 1:
-            self.display.fill((0, 0, 0, 255))
-        elif config.display_mode == 2:
-            if not self.elapsed_ticks % config.fade_slowness:
-                self.display.blit(self.black_fadeout_surface, (0, 0))
 
 
 if __name__ == "__main__":

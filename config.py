@@ -3,8 +3,8 @@ from Vector2 import Vector2
 ### App
 seed = -1
 # Simulation
-t_size = Vector2(40, 25)
-balls_nbr = 30
+t_size = Vector2(20, 4)
+balls_nbr = 5
 balls_radius = 32
 dampening_factor = 1
 gravity = Vector2(0, 0)

@@ -5,7 +5,7 @@ import config
 from Vector2 import Vector2
 
 
-def create_occlusion_surface(px_window_size, alpha_value):
+def create_surface(px_window_size, alpha_value):
     s = pygame.Surface(px_window_size.to_int_tuple(), pygame.SRCALPHA)
     s.set_alpha(alpha_value)
     pygame.draw.rect(
