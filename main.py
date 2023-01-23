@@ -41,7 +41,7 @@ class App(object):
         )
         ### FPS
         self.elapsed_ticks = 0
-        self.fps = 60
+        self.fps = 120
         self.clock = pygame.time.Clock()
         self.last_new_ball = time.time()
         ### Pygame
@@ -57,7 +57,16 @@ class App(object):
         self.rotators = []
 
     def launch(self):
+        ended_time = None
         while self.handle_loop():
+            if len(self.dots) == 0:
+                if ended_time is not None:
+                    if time.time() - ended_time > 5:
+                        break
+                else:
+                    ended_time = time.time()
+                config.gravity = Vector2(0, 0.5)
+                config.dampening_factor = 0.8
             if config.gravity_rotation_speed:
                 config.gravity = config.gravity.rotate(config.gravity_rotation_speed)
             # Update positions

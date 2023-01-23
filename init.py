@@ -2,7 +2,6 @@ import random
 
 import utils
 import config
-import audio_utils
 from Ball import Ball
 from Vector2 import Vector2
 

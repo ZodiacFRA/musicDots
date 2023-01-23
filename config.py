@@ -1,7 +1,7 @@
 from Vector2 import Vector2
 
 ### App
-seed = -1
+seed = 183
 # Simulation
 t_size = Vector2(32, 18)
 inital_ball_nbr = 1
