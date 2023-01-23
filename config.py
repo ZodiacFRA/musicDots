@@ -2,9 +2,9 @@ from Vector2 import Vector2
 
 ### App
 seed = -1
-# Simulation
-t_size = Vector2(20, 4)
-balls_nbr = 5
+# Simulation (Odd numbers are better)
+t_size = Vector2(6, 6)
+balls_nbr = 2
 balls_radius = 32
 dampening_factor = 1
 gravity = Vector2(0, 0)
@@ -18,9 +18,10 @@ display_mode = 2
 fade_slowness = 1
 merge_colors = True
 draw_grid = True
+draw_cursor = False
 
 ### Audio
-use_sound = False
+use_sound = True
 base_volume = 0.1
 play_wall_collide_sounds = True
 play_ball_collide_sounds = False

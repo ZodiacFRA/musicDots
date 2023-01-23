@@ -12,12 +12,13 @@ def balls(walls, px_window_size, color_list, shuffle=False):
     balls = []
     # base_velocity = random.randint(-500, 500)
     radius = config.balls_radius
-    speeds_list = [0.5, 1, 2, 4]
+    speeds_list = [1, 2]
     tile_nbr = px_window_size // radius
     for idx in range(config.balls_nbr):
         retry_count = 0
         new_ball = None
-        while retry_count < 20:
+        while retry_count < 10:
+            retry_count += 1
             base_velocity = random.choice(speeds_list)
             velocity = Vector2(
                 random.choice([-1, -1, 0, 1, 1]) * base_velocity,

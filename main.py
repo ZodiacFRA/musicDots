@@ -15,6 +15,11 @@ class App(object):
     def __init__(self):
         if config.seed >= 0:
             random.seed(config.seed)
+            print("[ ] - Seed:", config.seed)
+        else:
+            seed = random.randint(-1000, 1000)
+            random.seed(seed)
+            print("[ ] - Seed:", seed)
         ### Sound
         self.audio = Audio()
         # Graphics
@@ -30,7 +35,7 @@ class App(object):
             self.px_window_size,
             config.balls_radius,
             color="#ffffff",
-            alpha=75,
+            alpha=30,
             type="dots",
         )
         ### FPS
@@ -117,7 +122,8 @@ class App(object):
 
         for wall in self.walls:
             wall.draw(self.display)
-        self.draw_cursor()
+        if config.draw_cursor:
+            self.draw_cursor()
 
     def draw_cursor(self):
         px_cursor_pos = (

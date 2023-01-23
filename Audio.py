@@ -38,11 +38,11 @@ class Audio(object):
         if not config.use_sound:
             return
         if collision_type == 0:
-            sample = self.samples["piano"][id]
+            sample = self.samples["piano"][self.notes[id]]
         elif collision_type == 1:
-            sample = self.samples["piano"][id]
+            sample = self.samples["piano"][self.notes[id]]
         elif collision_type == 2:
-            sample = self.samples["piano"][id]
+            sample = self.samples["piano"][self.notes[id]]
         else:
             sample = self.samples["perc"][1]
         # sample.set_volume(ball.velocity.artistic_velocity() / 80000)
